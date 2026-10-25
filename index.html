@@ -220,12 +220,28 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
       return makeEmbed('Dailymotion', 'Enlace de Dailymotion', '');
     }
 
-    // Streamable.
-    if (host === 'streamable.com' || host.endsWith('.streamable.com')) {
-      id = parts[0] === 'e' ? (parts[1] || '') : (parts[0] || '');
-      if (id && /^[\w-]+$/.test(id)) return makeEmbed('Streamable', 'Video de Streamable',
-        'https://streamable.com/e/' + encodeURIComponent(id));
-      return makeEmbed('Streamable', 'Enlace de Streamable', '');
+    // MEGA: usar el reproductor oficial como destino principal, no una página intermedia.
+    if (host === 'mega.nz' || host === 'mega.co.nz') {
+      const m = path.match(/^\/(?:file|embed)\/([A-Za-z0-9_-]+)/i);
+      if (m) {
+        const embed = 'https://mega.nz/embed/' + m[1] + (u.hash || '');
+        return makeEmbed('MEGA', 'Video de MEGA', embed,
+          'Se abrirá el reproductor oficial de MEGA. Rave puede no reconocer MEGA como proveedor nativo.');
+      }
+      const legacy = u.href.match(/#!([^!]+)!([^&]+)/);
+      if (legacy) {
+        return makeEmbed('MEGA', 'Video de MEGA',
+          'https://mega.nz/embed/' + legacy[1] + '#' + legacy[2],
+          'Se abrirá el reproductor oficial de MEGA. Rave puede no reconocer MEGA como proveedor nativo.');
+      }
+      return makeEmbed('MEGA', 'Enlace de MEGA', '',
+        'Pega el enlace compartido de un archivo individual de MEGA.');
+    }
+
+    // MediaFire: el enlace compartido normalmente es una página de descarga, no el archivo de video.
+    if (host === 'mediafire.com' || host.endsWith('.mediafire.com')) {
+      return makeEmbed('MediaFire', 'Enlace de MediaFire', '',
+        'Se abrirá el enlace original. Si solo muestra una página de descarga, necesitas una URL directa de video que el proveedor permita usar.', true);
     }
 
     // Si el sitio no tiene embed propio, se ofrece probar la página completa en un iframe.
@@ -371,27 +387,42 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
     raveGuide.replaceChildren();
     raveGuide.hidden = false;
 
-    // Para los proveedores que Rave reconoce, abre su enlace original.
-    // Para los demás, crea una página separada que intenta reproducir el enlace.
-    let destination = target.url;
-    if (!target.supported) {
-      const playerPage = new URL('./player.html', location.href);
-      playerPage.searchParams.set('src', currentUrl);
-      destination = playerPage.href;
+    // Lo esencial para Rave es abrir el dominio real en el nivel principal del navegador.
+    // No enviamos enlaces no compatibles a player.html porque Rave solo vería github.io.
+    let destination;
+    let messageText;
+    let openLabel;
+    let copyLabel;
+
+    if (target.supported) {
+      destination = target.url;
+      messageText = 'Abrimos el enlace original de ' + target.service + ' en otra página para conservar el dominio que Rave reconoce.';
+      openLabel = 'Abrir fuente compatible ↗';
+      copyLabel = 'Copiar enlace compatible';
+    } else if (currentDetected && currentDetected.embed) {
+      destination = currentDetected.embed;
+      messageText = 'Abrimos directamente el reproductor oficial de ' + currentDetected.service + ', sin una página intermedia de TuturunRav. Rave puede seguir sin reconocer este servicio si no lo admite como fuente.';
+      openLabel = 'Abrir reproductor oficial ↗';
+      copyLabel = 'Copiar enlace del reproductor';
+    } else if (currentDetected && currentDetected.direct) {
+      destination = currentUrl;
+      messageText = 'Abrimos directamente el archivo de video. Si Rave no lo reconoce, el formato o el servidor puede no ser compatible; cambiar la URL no puede añadir soporte a Rave.';
+      openLabel = 'Abrir archivo de video ↗';
+      copyLabel = 'Copiar enlace directo';
+    } else {
+      destination = currentUrl;
+      messageText = 'Abrimos la página original directamente, no el reproductor de TuturunRav. Si Rave sigue sin detectar el video, ese sitio puede no ofrecer un formato compatible o no estar admitido por Rave.';
+      openLabel = 'Abrir página original ↗';
+      copyLabel = 'Copiar enlace original';
     }
 
-    // El clic del usuario abre una página nueva. El enlace visible queda como alternativa
-    // por si el WebView bloquea las ventanas nuevas.
     try {
-      window.open(destination, '_blank', 'noopener,noreferrer');
+      const opened = window.open(destination, '_blank');
+      if (opened) opened.opener = null;
     } catch {}
 
     const message = document.createElement('p');
-    if (target.supported) {
-      message.textContent = 'Se abrió el enlace original de ' + target.service + ' en otra página. Así se conserva el dominio que Rave reconoce; no uses la página intermedia para este proveedor.';
-    } else {
-      message.textContent = 'Se abrió una página de reproducción separada con el enlace de origen. Admite archivos de video directos y prueba el reproductor oficial de MEGA. Para enlaces de MediaFire, el resultado depende de que el enlace entregue el archivo y no solo una página de descarga. Esta página auxiliar no puede convertir un sitio desconocido en un proveedor nativo de Rave ni garantizar sincronización.';
-    }
+    message.textContent = messageText;
 
     const actions = document.createElement('div');
     actions.className = 'notice-actions';
@@ -399,7 +430,7 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
     const open = document.createElement('a');
     open.className = 'linkbutton primary';
     open.href = destination;
-    open.textContent = target.supported ? 'Abrir fuente compatible ↗' : 'Abrir página de reproducción ↗';
+    open.textContent = openLabel;
     open.target = '_blank';
     open.rel = 'noopener noreferrer';
     actions.appendChild(open);
@@ -407,13 +438,11 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
     const copy = document.createElement('button');
     copy.type = 'button';
     copy.className = 'secondary';
-    copy.textContent = target.supported ? 'Copiar enlace compatible' : 'Copiar enlace de reproducción';
+    copy.textContent = copyLabel;
     copy.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(destination);
-        status.textContent = target.supported
-          ? 'Enlace original de ' + target.service + ' copiado. Pégalo directamente en Rave.'
-          : 'Enlace de la página de reproducción copiado. Rave puede no reconocerla como fuente sincronizada.';
+        status.textContent = 'Enlace preparado copiado. Pégalo directamente en Rave para probarlo.';
       } catch {
         input.value = destination;
         input.focus();
@@ -443,7 +472,7 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 
     const faq = document.createElement('a');
     faq.className = 'linkbutton secondary';
-    faq.href = 'https://rave.io/es/faq';
+    faq.href = 'https://rave.io/faq';
     faq.textContent = 'Fuentes admitidas por Rave ↗';
     faq.target = '_blank';
     faq.rel = 'noopener noreferrer';
@@ -451,8 +480,8 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 
     raveGuide.append(message, actions);
     status.textContent = target.supported
-      ? 'Se abrió ' + target.service + ' en otra página. Si no se abrió, pulsa “Abrir fuente compatible”.'
-      : 'Se abrió una página de reproducción auxiliar. Si no se abrió, pulsa “Abrir página de reproducción”.';
+      ? 'Se preparó la fuente original de ' + target.service + '. Si la nueva página no se abrió, pulsa el botón de apertura.'
+      : 'Se preparó la fuente original o el reproductor oficial, no una página intermedia. La detección final depende del soporte de Rave.';
   }
 
     prepareRaveButton.addEventListener('click', showRaveGuide);
@@ -491,10 +520,15 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
   });
 
   function reloadWholePagePreservingVideo() {
-    // Recarga todo el documento y restaura la URL para repetir la detección al volver a cargar.
+    // Guarda el enlace en la propia URL de la página para que la detección sobreviva a una recarga completa del WebView.
     try {
-      if (currentUrl) sessionStorage.setItem('tuturunrav-refresh-url', currentUrl);
-      else sessionStorage.removeItem('tuturunrav-refresh-url');
+      if (currentUrl) {
+        const next = new URL(location.href);
+        next.searchParams.set('restoreVideo', currentUrl);
+        window.location.assign(next.href);
+        return;
+      }
+      sessionStorage.removeItem('tuturunrav-refresh-url');
     } catch {}
     window.location.reload();
   }
@@ -543,11 +577,17 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
     }
   });
 
-  // Restauración de un solo uso tras "Recargar página completa".
+  // Restauración de un solo uso tras la recarga; el parámetro URL también funciona si el WebView pierde sessionStorage.
   try {
-    const restoreUrl = sessionStorage.getItem('tuturunrav-refresh-url');
+    const pageUrl = new URL(location.href);
+    const restoreUrl = pageUrl.searchParams.get('restoreVideo') || sessionStorage.getItem('tuturunrav-refresh-url');
     if (restoreUrl) {
       sessionStorage.removeItem('tuturunrav-refresh-url');
+      if (pageUrl.searchParams.has('restoreVideo')) {
+        pageUrl.searchParams.delete('restoreVideo');
+        const cleanUrl = pageUrl.pathname + (pageUrl.search ? '?' + pageUrl.searchParams.toString() : '') + pageUrl.hash;
+        history.replaceState(null, '', cleanUrl);
+      }
       input.value = restoreUrl;
       form.dispatchEvent(new Event('submit', {bubbles:true, cancelable:true}));
     }
