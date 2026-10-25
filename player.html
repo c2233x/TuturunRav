@@ -182,9 +182,46 @@ main{width:min(900px,100%);margin:auto;padding:25px 15px 42px}.brand{display:fle
     }
   });
 
+  // Destino principal para Rave: abrir la fuente real en el nivel superior, no dentro de github.io.
+  function preferredSourceForRave(raw) {
+    const u = safeUrl(raw);
+    const host = hostOf(u);
+    const path = u.pathname;
+
+    // OK.ru: prueba la página oficial del reproductor como destino superior.
+    if (host === 'ok.ru' || host.endsWith('.ok.ru') ||
+        host === 'odnoklassniki.ru' || host.endsWith('.odnoklassniki.ru')) {
+      const m = path.match(/\\/video(?:embed)?\\/(\\d+)/i);
+      if (m) return 'https://ok.ru/videoembed/' + encodeURIComponent(m[1]);
+    }
+
+    // MEGA: comparte una clave cifrada, por eso hay que usar su propio reproductor.
+    if (host === 'mega.nz' || host === 'mega.co.nz') {
+      const m = path.match(/\\/(?:file|embed)\\/([A-Za-z0-9_-]+)/i);
+      if (m) return 'https://mega.nz/embed/' + encodeURIComponent(m[1]) + (u.hash || '');
+      const legacy = u.href.match(/#!([^!]+)!([^&]+)/);
+      if (legacy) return 'https://mega.nz/embed/' + legacy[1] + '#' + legacy[2];
+    }
+
+    // Los demás enlaces se abren en su URL original para que el navegador/Rave vea el dominio real.
+    return u.href;
+  }
+
   try {
-    const src = new URL(location.href).searchParams.get('src');
-    if (src) load(src);
+    const params = new URL(location.href).searchParams;
+    const src = params.get('src');
+    if (src) {
+      input.value = src;
+      // mode=preview permite conservar el visor web. El modo por defecto favorece la detección de Rave.
+      if (params.get('mode') === 'preview') {
+        load(src);
+      } else {
+        const destination = preferredSourceForRave(src);
+        openSource.href = destination;
+        info('Abriendo la fuente original o el reproductor oficial directamente. Si Rave no admite ese servicio, una página intermedia no puede forzar su detección.');
+        window.location.replace(destination);
+      }
+    }
   } catch { info('No se pudo leer el enlace enviado. Pégalo de nuevo en el campo.'); }
 })();
 </script>
