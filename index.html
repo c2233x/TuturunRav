@@ -18,7 +18,7 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 <section class="hero">
 <div class="eyebrow">Tu enlace, listo para compartir</div>
 <h2>Un video. <span>Un solo lugar.</span></h2>
-<p class="intro">Pega enlaces de distintas plataformas. TuturunRav reconocerá más servicios y convertirá los formatos de inserción cuando sea posible. Si una plataforma bloquea la vista previa, podrás abrir y compartir el enlace original.</p>
+<p class="intro">Pega un enlace para ver su reproductor y comprobar si Rave reconoce ese servicio. Para la detección nativa, Rave debe abrir el enlace original de un proveedor compatible; poner el video dentro de TuturunRav no cambia el servicio de origen.</p>
 <label class="fieldlabel" for="videoUrl">Enlace del video o código del reproductor</label>
 <form id="videoForm"><input id="videoUrl" name="videoUrl" type="text" inputmode="url" placeholder="https://ok.ru/video/… o pega el código iframe" autocomplete="off" required aria-describedby="status"><button class="primary" type="submit">Detectar video <span aria-hidden="true">↗</span></button></form>
 <p class="status" id="status" role="status" aria-live="polite">Reconoce YouTube, Vimeo, Twitch, OK.ru y más. También acepta enlaces de reproductores o código iframe.</p>
@@ -31,7 +31,7 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 <div class="howto">
 <article class="step"><div class="num">1</div><h3>Pega el enlace</h3><p>Pega el enlace del video, la URL del reproductor o el código iframe que la página proporcione. No pegues contraseñas ni datos privados.</p></article>
 <article class="step"><div class="num">2</div><h3>Comprueba la vista previa</h3><p>La vista previa depende de las reglas de cada plataforma, del navegador y de la privacidad del video.</p></article>
-<article class="step"><div class="num">3</div><h3>Úsalo en Rave</h3><p>Abre Rave y pega el enlace en la sala siguiendo las opciones que aparezcan en la app.</p></article>
+<article class="step"><div class="num">3</div><h3>Úsalo en Rave</h3><p>Pulsa “Convertir para Rave”. Si el proveedor es compatible, abre allí el enlace preparado. Si no, Rave no puede reconocerlo solo por cambiar la URL.</p></article>
 </div>
 <div class="notice"><strong>Importante:</strong> Rave reconoce servicios concretos; una página externa no puede registrar nuevos proveedores ni forzar a Rave a reconocerlos. “Convertir para Rave” normaliza enlaces de servicios compatibles y te explica las opciones cuando el origen no está en la lista oficial. No descarga ni vuelve a alojar videos de terceros.</div>
 </section>
@@ -419,6 +419,13 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
       photos.textContent = 'Abrir Google Photos ↗';
       photos.target = '_self';
       actions.appendChild(photos);
+      const faq = document.createElement('a');
+      faq.className = 'linkbutton secondary';
+      faq.href = 'https://rave.io/es/faq';
+      faq.target = '_blank';
+      faq.rel = 'noopener noreferrer';
+      faq.textContent = 'Ver fuentes oficiales de Rave ↗';
+      actions.appendChild(faq);
       raveGuide.append(message, actions);
       status.textContent = 'Este enlace no tiene una conversión automática confirmada para Rave. Mostramos alternativas oficiales.';
     }
