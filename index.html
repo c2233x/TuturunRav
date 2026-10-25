@@ -351,7 +351,12 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
   });
 
   refreshPageButton.addEventListener('click', () => {
-    // Recarga el documento completo para que el navegador interno de Rave vuelva a analizar la página.
+    // Guarda solo la URL ya detectada durante esta recarga de sesión para volver a mostrar el reproductor al cargar.
+    try {
+      if (currentUrl) sessionStorage.setItem('tuturunrav-refresh-url', currentUrl);
+      else sessionStorage.removeItem('tuturunrav-refresh-url');
+    } catch {}
+    // Recarga TuturunRav completa; al iniciarse, intenta restaurar el video para que Rave vuelva a analizarlo.
     window.location.reload();
   });
 
@@ -406,6 +411,16 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
       }
     }
   });
+
+  // Restauración de un solo uso tras "Recargar página completa".
+  try {
+    const restoreUrl = sessionStorage.getItem('tuturunrav-refresh-url');
+    if (restoreUrl) {
+      sessionStorage.removeItem('tuturunrav-refresh-url');
+      input.value = restoreUrl;
+      form.dispatchEvent(new Event('submit', {bubbles:true, cancelable:true}));
+    }
+  } catch {}
 })();
 </script>
 </body>
