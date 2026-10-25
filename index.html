@@ -359,6 +359,7 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 
   function showRaveGuide() {
     if (!currentUrl) return;
+
     let target;
     try {
       target = getRaveTarget(currentUrl);
@@ -370,68 +371,91 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
     raveGuide.replaceChildren();
     raveGuide.hidden = false;
 
+    // Para los proveedores que Rave reconoce, abre su enlace original.
+    // Para los demás, crea una página separada que intenta reproducir el enlace.
+    let destination = target.url;
+    if (!target.supported) {
+      const playerPage = new URL('./player.html', location.href);
+      playerPage.searchParams.set('src', currentUrl);
+      destination = playerPage.href;
+    }
+
+    // El clic del usuario abre una página nueva. El enlace visible queda como alternativa
+    // por si el WebView bloquea las ventanas nuevas.
+    try {
+      window.open(destination, '_blank', 'noopener,noreferrer');
+    } catch {}
+
     const message = document.createElement('p');
     if (target.supported) {
-      message.textContent = 'Servicio incluido en la lista oficial de Rave: ' + target.service + '. El enlace se ha normalizado cuando corresponde. Para que Rave identifique la fuente, abre el servicio original directamente desde el botón de abajo; Rave no reconoce el video por estar incrustado dentro de TuturunRav.';
-      const actions = document.createElement('div');
-      actions.className = 'notice-actions';
-
-      const open = document.createElement('a');
-      open.className = 'linkbutton primary';
-      open.href = target.url;
-      open.textContent = 'Abrir fuente compatible ↗';
-      open.setAttribute('aria-label', 'Abrir enlace preparado para Rave');
-      // Same WebView/browser so Rave can see the actual supported provider URL.
-      open.target = '_self';
-      actions.appendChild(open);
-
-      const copy = document.createElement('button');
-      copy.type = 'button';
-      copy.className = 'secondary';
-      copy.textContent = 'Copiar enlace preparado';
-      copy.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(target.url);
-          status.textContent = 'Enlace preparado de ' + target.service + ' copiado. Pégalo directamente en Rave.';
-        } catch {
-          input.value = target.url;
-          input.focus();
-          input.select();
-          status.textContent = 'Seleccionamos el enlace preparado en el campo para que puedas copiarlo.';
-        }
-      });
-      actions.appendChild(copy);
-      raveGuide.append(message, actions);
-      status.textContent = 'Enlace preparado para ' + target.service + '. Ábrelo directamente para que Rave vea el dominio original.';
+      message.textContent = 'Se abrió el enlace original de ' + target.service + ' en otra página. Así se conserva el dominio que Rave reconoce; no uses la página intermedia para este proveedor.';
     } else {
-      message.textContent = 'No podemos convertir este enlace en una fuente que Rave reconozca automáticamente. La lista oficial de Rave incluye proveedores concretos y no enumera OK.ru ni esta página como fuente compatible. Cambiar la URL o recargar no añade soporte. Para un video que tienes derecho a compartir, una ruta oficial es subir el archivo a Google Drive o Google Photos y después elegirlo desde Rave.';
-      const actions = document.createElement('div');
-      actions.className = 'notice-actions';
+      message.textContent = 'Se abrió una página de reproducción separada con el enlace de origen. Admite archivos de video directos y prueba el reproductor oficial de MEGA. Para enlaces de MediaFire, el resultado depende de que el enlace entregue el archivo y no solo una página de descarga. Esta página auxiliar no puede convertir un sitio desconocido en un proveedor nativo de Rave ni garantizar sincronización.';
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'notice-actions';
+
+    const open = document.createElement('a');
+    open.className = 'linkbutton primary';
+    open.href = destination;
+    open.textContent = target.supported ? 'Abrir fuente compatible ↗' : 'Abrir página de reproducción ↗';
+    open.target = '_blank';
+    open.rel = 'noopener noreferrer';
+    actions.appendChild(open);
+
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'secondary';
+    copy.textContent = target.supported ? 'Copiar enlace compatible' : 'Copiar enlace de reproducción';
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(destination);
+        status.textContent = target.supported
+          ? 'Enlace original de ' + target.service + ' copiado. Pégalo directamente en Rave.'
+          : 'Enlace de la página de reproducción copiado. Rave puede no reconocerla como fuente sincronizada.';
+      } catch {
+        input.value = destination;
+        input.focus();
+        input.select();
+        status.textContent = 'Seleccionamos el enlace preparado en el campo para que puedas copiarlo.';
+      }
+    });
+    actions.appendChild(copy);
+
+    if (!target.supported) {
       const drive = document.createElement('a');
-      drive.className = 'linkbutton primary';
+      drive.className = 'linkbutton secondary';
       drive.href = 'https://drive.google.com/drive/my-drive';
-      drive.textContent = 'Abrir Google Drive ↗';
-      drive.target = '_self';
+      drive.textContent = 'Google Drive ↗';
+      drive.target = '_blank';
+      drive.rel = 'noopener noreferrer';
       actions.appendChild(drive);
+
       const photos = document.createElement('a');
       photos.className = 'linkbutton secondary';
       photos.href = 'https://photos.google.com/';
-      photos.textContent = 'Abrir Google Photos ↗';
-      photos.target = '_self';
+      photos.textContent = 'Google Photos ↗';
+      photos.target = '_blank';
+      photos.rel = 'noopener noreferrer';
       actions.appendChild(photos);
-      const faq = document.createElement('a');
-      faq.className = 'linkbutton secondary';
-      faq.href = 'https://rave.io/es/faq';
-      faq.target = '_blank';
-      faq.rel = 'noopener noreferrer';
-      faq.textContent = 'Ver fuentes oficiales de Rave ↗';
-      actions.appendChild(faq);
-      raveGuide.append(message, actions);
-      status.textContent = 'Este enlace no tiene una conversión automática confirmada para Rave. Mostramos alternativas oficiales.';
     }
+
+    const faq = document.createElement('a');
+    faq.className = 'linkbutton secondary';
+    faq.href = 'https://rave.io/es/faq';
+    faq.textContent = 'Fuentes admitidas por Rave ↗';
+    faq.target = '_blank';
+    faq.rel = 'noopener noreferrer';
+    actions.appendChild(faq);
+
+    raveGuide.append(message, actions);
+    status.textContent = target.supported
+      ? 'Se abrió ' + target.service + ' en otra página. Si no se abrió, pulsa “Abrir fuente compatible”.'
+      : 'Se abrió una página de reproducción auxiliar. Si no se abrió, pulsa “Abrir página de reproducción”.';
   }
 
-  prepareRaveButton.addEventListener('click', showRaveGuide);
+    prepareRaveButton.addEventListener('click', showRaveGuide);
 
     form.addEventListener('submit', e => {
     e.preventDefault();
