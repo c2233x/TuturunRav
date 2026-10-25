@@ -9,7 +9,7 @@
 <style>
 :root{color-scheme:dark;--bg:#101018;--panel:#191925;--line:#343449;--text:#f6f4ff;--muted:#b7b4ca;--pink:#ff4d91;--purple:#9b7bff;--green:#72e4b8}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 0%,#322044 0,transparent 42%),radial-gradient(ellipse at 100% 25%,#1e3150 0,transparent 35%),var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--pink),var(--purple));font-size:25px;font-weight:900;box-shadow:0 8px 28px #ff4d9140}.brand h1{font-size:1.45rem;margin:0;letter-spacing:.2px}.brand p{margin:0;color:var(--muted);font-size:.9rem}.brand button{margin-left:auto;white-space:nowrap}.hero{padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:26px;background:#171723eF;box-shadow:0 24px 80px #0004}.eyebrow{color:#d3bfff;text-transform:uppercase;font-size:.76rem;font-weight:800;letter-spacing:2px}.hero h2{font-size:clamp(2rem,6vw,3.4rem);line-height:1.08;margin:10px 0 14px}.hero h2 span{background:linear-gradient(90deg,var(--pink),#b8a0ff);-webkit-background-clip:text;background-clip:text;color:transparent}.intro{color:var(--muted);max-width:650px;margin:0 0 25px}.fieldlabel{display:block;font-weight:700;margin-bottom:9px}form{display:flex;gap:10px;flex-wrap:wrap}input{flex:1 1 280px;min-width:0;border:1px solid #49495f;border-radius:13px;background:#0e0e17;color:white;padding:15px;font:inherit;outline:none}input:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9b7bff25}button,.linkbutton{border:0;border-radius:13px;padding:13px 18px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,filter .15s}button:hover,.linkbutton:hover{filter:brightness(1.1);transform:translateY(-1px)}button:focus-visible,a:focus-visible{outline:3px solid #d3bfff;outline-offset:3px}.primary{background:linear-gradient(100deg,var(--pink),var(--purple));color:white}.secondary{background:#29293a;color:white;border:1px solid #414158}.status{margin:16px 0 0;color:var(--muted);min-height:24px}.result{display:none;margin-top:22px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#11111b}.result.show{display:block}.resulthead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.resulthead h3{margin:0;font-size:1.05rem}.tag{border:1px solid #49415f;border-radius:99px;padding:5px 10px;font-size:.78rem;color:#d9cbff}.preview{background:#08080d;aspect-ratio:16/9;display:grid;place-items:center}.preview iframe,.preview video{width:100%;height:100%;border:0}.preview .placeholder{padding:24px;text-align:center;color:var(--muted)}.try-embed{margin-top:14px;background:#29293a;color:white;border:1px solid #414158;border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}.try-embed:hover{filter:brightness(1.1)}.actions{display:flex;flex-wrap:wrap;gap:10px;padding:16px 18px}.howto{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.step{padding:18px;border:1px solid var(--line);border-radius:17px;background:#171723b8}.step .num{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#302542;color:#e3d4ff;font-weight:900}.step h3{margin:12px 0 6px;font-size:1rem}.step p{margin:0;color:var(--muted);font-size:.92rem}.notice{margin-top:18px;padding:15px 17px;border-radius:14px;background:#242032;border:1px solid #4b3c68;color:#d8d0e8;font-size:.9rem}.notice strong{color:white}footer{text-align:center;color:#9692aa;font-size:.82rem;padding:25px 0 0}a{color:#d7caff} @media(max-width:520px){main{padding:20px 12px 34px}.hero{border-radius:20px}.brand{flex-wrap:wrap}.brand button{margin-left:0;width:auto}form button{width:100%}.actions>*{flex:1 1 100%}}
+main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--pink),var(--purple));font-size:25px;font-weight:900;box-shadow:0 8px 28px #ff4d9140}.brand h1{font-size:1.45rem;margin:0;letter-spacing:.2px}.brand p{margin:0;color:var(--muted);font-size:.9rem}.brand button{margin-left:auto;white-space:nowrap}.hero{padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:26px;background:#171723eF;box-shadow:0 24px 80px #0004}.eyebrow{color:#d3bfff;text-transform:uppercase;font-size:.76rem;font-weight:800;letter-spacing:2px}.hero h2{font-size:clamp(2rem,6vw,3.4rem);line-height:1.08;margin:10px 0 14px}.hero h2 span{background:linear-gradient(90deg,var(--pink),#b8a0ff);-webkit-background-clip:text;background-clip:text;color:transparent}.intro{color:var(--muted);max-width:650px;margin:0 0 25px}.fieldlabel{display:block;font-weight:700;margin-bottom:9px}form{display:flex;gap:10px;flex-wrap:wrap}input{flex:1 1 280px;min-width:0;border:1px solid #49495f;border-radius:13px;background:#0e0e17;color:white;padding:15px;font:inherit;outline:none}input:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9b7bff25}button,.linkbutton{border:0;border-radius:13px;padding:13px 18px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,filter .15s}button:hover,.linkbutton:hover{filter:brightness(1.1);transform:translateY(-1px)}button:focus-visible,a:focus-visible{outline:3px solid #d3bfff;outline-offset:3px}.primary{background:linear-gradient(100deg,var(--pink),var(--purple));color:white}.secondary{background:#29293a;color:white;border:1px solid #414158}.status{margin:16px 0 0;color:var(--muted);min-height:24px}.result{display:none;margin-top:22px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#11111b}.result.show{display:block}.resulthead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.resulthead h3{margin:0;font-size:1.05rem}.tag{border:1px solid #49415f;border-radius:99px;padding:5px 10px;font-size:.78rem;color:#d9cbff}.preview{background:#08080d;aspect-ratio:16/9;display:grid;place-items:center}.preview iframe,.preview video{width:100%;height:100%;border:0}.preview .placeholder{padding:24px;text-align:center;color:var(--muted)}.try-embed{margin-top:14px;background:#29293a;color:white;border:1px solid #414158;border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}.try-embed:hover{filter:brightness(1.1)}.actions{display:flex;flex-wrap:wrap;gap:10px;padding:16px 18px}.howto{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.step{padding:18px;border:1px solid var(--line);border-radius:17px;background:#171723b8}.step .num{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#302542;color:#e3d4ff;font-weight:900}.step h3{margin:12px 0 6px;font-size:1rem}.step p{margin:0;color:var(--muted);font-size:.92rem}.notice{margin-top:18px;padding:15px 17px;border-radius:14px;background:#242032;border:1px solid #4b3c68;color:#d8d0e8;font-size:.9rem}.notice strong{color:white}.notice[hidden]{display:none}.notice p{margin:0 0 10px}.notice-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.notice-actions a,.notice-actions button{font-size:.9rem}footer{text-align:center;color:#9692aa;font-size:.82rem;padding:25px 0 0}a{color:#d7caff} @media(max-width:520px){main{padding:20px 12px 34px}.hero{border-radius:20px}.brand{flex-wrap:wrap}.brand button{margin-left:0;width:auto}form button{width:100%}.actions>*{flex:1 1 100%}}
 </style>
 </head>
 <body>
@@ -25,14 +25,15 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 <section class="result" id="result" aria-label="Resultado del enlace">
 <div class="resulthead"><h3 id="videoTitle">Video detectado</h3><span class="tag" id="serviceTag">Servicio</span></div>
 <div class="preview" id="preview"><div class="placeholder">La vista previa aparecerá aquí si el servicio permite insertarla.</div></div>
-<div class="actions"><a id="openVideo" class="linkbutton primary" href="#" target="_blank" rel="noopener noreferrer">Abrir video original ↗</a><button id="refreshPlayer" class="secondary" type="button" disabled>↻ Recargar reproductor</button><a id="openPlayerOnly" class="linkbutton secondary" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">Abrir solo el reproductor ↗</a><button id="copyLink" class="secondary" type="button">Copiar enlace</button><button id="shareLink" class="secondary" type="button">Compartir enlace</button></div>
+<div class="actions"><a id="openVideo" class="linkbutton primary" href="#" target="_blank" rel="noopener noreferrer">Abrir video original ↗</a><button id="refreshPlayer" class="secondary" type="button" disabled>↻ Recargar reproductor (página completa)</button><a id="openPlayerOnly" class="linkbutton secondary" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">Abrir solo el reproductor ↗</a><button id="prepareRave" class="secondary" type="button" disabled>Convertir para Rave</button><button id="copyLink" class="secondary" type="button">Copiar enlace</button><button id="shareLink" class="secondary" type="button">Compartir enlace</button></div>
+<div id="raveGuide" class="notice" hidden aria-live="polite"></div>
 </section>
 <div class="howto">
 <article class="step"><div class="num">1</div><h3>Pega el enlace</h3><p>Pega el enlace del video, la URL del reproductor o el código iframe que la página proporcione. No pegues contraseñas ni datos privados.</p></article>
 <article class="step"><div class="num">2</div><h3>Comprueba la vista previa</h3><p>La vista previa depende de las reglas de cada plataforma, del navegador y de la privacidad del video.</p></article>
 <article class="step"><div class="num">3</div><h3>Úsalo en Rave</h3><p>Abre Rave y pega el enlace en la sala siguiendo las opciones que aparezcan en la app.</p></article>
 </div>
-<div class="notice"><strong>Importante:</strong> no existe una conversión capaz de hacer reproducible cualquier enlace: algunas páginas bloquean la inserción, exigen iniciar sesión o protegen el contenido. TuturunRav prepara los reproductores disponibles y mantiene la opción de abrir el original. No añade videos automáticamente a una sala de Rave.</div>
+<div class="notice"><strong>Importante:</strong> Rave reconoce servicios concretos; una página externa no puede registrar nuevos proveedores ni forzar a Rave a reconocerlos. “Convertir para Rave” normaliza enlaces de servicios compatibles y te explica las opciones cuando el origen no está en la lista oficial. No descarga ni vuelve a alojar videos de terceros.</div>
 </section>
 <footer>TuturunRav · Herramienta para preparar enlaces de video. No está afiliada a Rave ni a las plataformas enlazadas.</footer>
 </main>
@@ -51,6 +52,8 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
   const refreshPageButton = document.querySelector('#refreshPage');
   const refreshPlayerButton = document.querySelector('#refreshPlayer');
   const openPlayerOnly = document.querySelector('#openPlayerOnly');
+  const prepareRaveButton = document.querySelector('#prepareRave');
+  const raveGuide = document.querySelector('#raveGuide');
   let currentUrl = '';
   let currentPlayerUrl = '';
   let currentDetected = null;
@@ -320,7 +323,110 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
     }
   }
 
-  form.addEventListener('submit', e => {
+  function getRaveTarget(rawUrl) {
+    const u = safeUrl(rawUrl);
+    const host = hostOf(u);
+    const path = u.pathname;
+    const parts = path.split('/').filter(Boolean);
+    const contains = domain => host === domain || host.endsWith('.' + domain);
+    let service = '';
+
+    if (host === 'youtu.be' || contains('youtube.com') || contains('youtube-nocookie.com')) {
+      service = 'YouTube';
+      let id = '';
+      if (host === 'youtu.be') id = parts[0] || '';
+      else if (path === '/watch') id = u.searchParams.get('v') || '';
+      else if (/^\/(embed|shorts|live|v)\//.test(path)) id = parts[1] || '';
+      if (id && /^[\w-]{6,20}$/.test(id)) {
+        return {supported:true, service, url:'https://www.youtube.com/watch?v=' + encodeURIComponent(id)};
+      }
+    } else if (contains('netflix.com')) service = 'Netflix';
+    else if (contains('primevideo.com') || (host === 'amazon.com' && /video/i.test(path))) service = 'Amazon Prime Video';
+    else if (contains('disneyplus.com')) service = 'Disney+';
+    else if (contains('max.com') || contains('hbomax.com')) service = 'Max / HBO Max';
+    else if (contains('twitch.tv')) service = 'Twitch';
+    else if (contains('crunchyroll.com')) service = 'Crunchyroll';
+    else if (contains('tubitv.com')) service = 'Tubi';
+    else if (contains('pluto.tv')) service = 'Pluto TV';
+    else if (contains('soundcloud.com')) service = 'SoundCloud';
+    else if (contains('x.com') || contains('twitter.com')) service = 'X';
+    else if (host === 'drive.google.com') service = 'Google Drive';
+    else if (host === 'photos.google.com' || host === 'photos.app.goo.gl') service = 'Google Photos';
+
+    if (service) return {supported:true, service, url:u.href};
+    return {supported:false, service:'No confirmado por Rave', url:u.href};
+  }
+
+  function showRaveGuide() {
+    if (!currentUrl) return;
+    let target;
+    try {
+      target = getRaveTarget(currentUrl);
+    } catch {
+      status.textContent = 'No pudimos preparar ese enlace. Vuelve a detectarlo e inténtalo otra vez.';
+      return;
+    }
+
+    raveGuide.replaceChildren();
+    raveGuide.hidden = false;
+
+    const message = document.createElement('p');
+    if (target.supported) {
+      message.textContent = 'Servicio incluido en la lista oficial de Rave: ' + target.service + '. El enlace se ha normalizado cuando corresponde. Para que Rave identifique la fuente, abre el servicio original directamente desde el botón de abajo; Rave no reconoce el video por estar incrustado dentro de TuturunRav.';
+      const actions = document.createElement('div');
+      actions.className = 'notice-actions';
+
+      const open = document.createElement('a');
+      open.className = 'linkbutton primary';
+      open.href = target.url;
+      open.textContent = 'Abrir fuente compatible ↗';
+      open.setAttribute('aria-label', 'Abrir enlace preparado para Rave');
+      // Same WebView/browser so Rave can see the actual supported provider URL.
+      open.target = '_self';
+      actions.appendChild(open);
+
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'secondary';
+      copy.textContent = 'Copiar enlace preparado';
+      copy.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(target.url);
+          status.textContent = 'Enlace preparado de ' + target.service + ' copiado. Pégalo directamente en Rave.';
+        } catch {
+          input.value = target.url;
+          input.focus();
+          input.select();
+          status.textContent = 'Seleccionamos el enlace preparado en el campo para que puedas copiarlo.';
+        }
+      });
+      actions.appendChild(copy);
+      raveGuide.append(message, actions);
+      status.textContent = 'Enlace preparado para ' + target.service + '. Ábrelo directamente para que Rave vea el dominio original.';
+    } else {
+      message.textContent = 'No podemos convertir este enlace en una fuente que Rave reconozca automáticamente. La lista oficial de Rave incluye proveedores concretos y no enumera OK.ru ni esta página como fuente compatible. Cambiar la URL o recargar no añade soporte. Para un video que tienes derecho a compartir, una ruta oficial es subir el archivo a Google Drive o Google Photos y después elegirlo desde Rave.';
+      const actions = document.createElement('div');
+      actions.className = 'notice-actions';
+      const drive = document.createElement('a');
+      drive.className = 'linkbutton primary';
+      drive.href = 'https://drive.google.com/drive/my-drive';
+      drive.textContent = 'Abrir Google Drive ↗';
+      drive.target = '_self';
+      actions.appendChild(drive);
+      const photos = document.createElement('a');
+      photos.className = 'linkbutton secondary';
+      photos.href = 'https://photos.google.com/';
+      photos.textContent = 'Abrir Google Photos ↗';
+      photos.target = '_self';
+      actions.appendChild(photos);
+      raveGuide.append(message, actions);
+      status.textContent = 'Este enlace no tiene una conversión automática confirmada para Rave. Mostramos alternativas oficiales.';
+    }
+  }
+
+  prepareRaveButton.addEventListener('click', showRaveGuide);
+
+    form.addEventListener('submit', e => {
     e.preventDefault();
     try {
       const u = parseInput(input.value);
@@ -334,6 +440,9 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
       openPlayerOnly.href = currentPlayerUrl;
       openPlayerOnly.setAttribute('aria-disabled', 'false');
       refreshPlayerButton.disabled = false;
+      prepareRaveButton.disabled = false;
+      raveGuide.hidden = true;
+      raveGuide.replaceChildren();
 
       renderDetectedPlayer(u, d);
 
@@ -350,29 +459,20 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
     }
   });
 
-  refreshPageButton.addEventListener('click', () => {
-    // Guarda solo la URL ya detectada durante esta recarga de sesión para volver a mostrar el reproductor al cargar.
+  function reloadWholePagePreservingVideo() {
+    // Recarga todo el documento y restaura la URL para repetir la detección al volver a cargar.
     try {
       if (currentUrl) sessionStorage.setItem('tuturunrav-refresh-url', currentUrl);
       else sessionStorage.removeItem('tuturunrav-refresh-url');
     } catch {}
-    // Recarga TuturunRav completa; al iniciarse, intenta restaurar el video para que Rave vuelva a analizarlo.
     window.location.reload();
-  });
+  }
+
+  refreshPageButton.addEventListener('click', reloadWholePagePreservingVideo);
 
   refreshPlayerButton.addEventListener('click', () => {
-    if (!currentUrl || !currentDetected) return;
-    try {
-      const u = safeUrl(currentUrl);
-      if (currentPreviewMode === 'page' && currentDetected.tryPage) {
-        openPageInPreview(currentUrl);
-      } else {
-        renderDetectedPlayer(u, currentDetected);
-      }
-      status.textContent = 'Se volvió a cargar solo el reproductor de ' + currentDetected.service + '. La página completa sigue abierta.';
-    } catch {
-      status.textContent = 'No se pudo actualizar el reproductor. Prueba abrir el video original.';
-    }
+    if (!currentUrl) return;
+    reloadWholePagePreservingVideo();
   });
 
   openPlayerOnly.addEventListener('click', e => {
