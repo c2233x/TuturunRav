@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101018">
-<meta name="description" content="Pega un enlace de video, detecta el servicio y abre el video para compartirlo en Rave.">
+<meta name="description" content="Pega un enlace de video y TuturunRav intentará prepararlo para vista previa o apertura.">
 <title>TuturunRav — Enlaces para Rave</title>
 <style>
 :root{color-scheme:dark;--bg:#101018;--panel:#191925;--line:#343449;--text:#f6f4ff;--muted:#b7b4ca;--pink:#ff4d91;--purple:#9b7bff;--green:#72e4b8}
@@ -18,122 +18,292 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 <section class="hero">
 <div class="eyebrow">Tu enlace, listo para compartir</div>
 <h2>Un video. <span>Un solo lugar.</span></h2>
-<p class="intro">Pega el enlace de un video. TuturunRav detectará el servicio y, cuando sea compatible, mostrará una vista previa. Después podrás abrir el video o copiar el enlace para usarlo en Rave.</p>
+<p class="intro">Pega enlaces de distintas plataformas. TuturunRav reconocerá más servicios y convertirá los formatos de inserción cuando sea posible. Si una plataforma bloquea la vista previa, podrás abrir y compartir el enlace original.</p>
 <label class="fieldlabel" for="videoUrl">Enlace del video</label>
 <form id="videoForm"><input id="videoUrl" name="videoUrl" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="url" required aria-describedby="status"><button class="primary" type="submit">Detectar video <span aria-hidden="true">↗</span></button></form>
-<p class="status" id="status" role="status" aria-live="polite">Compatible con enlaces de YouTube, Vimeo, Twitch y archivos de video directos.</p>
+<p class="status" id="status" role="status" aria-live="polite">Reconoce YouTube, Vimeo, Twitch, TikTok, Instagram, Facebook, X, Dailymotion, Streamable y archivos directos.</p>
 <section class="result" id="result" aria-label="Resultado del enlace">
 <div class="resulthead"><h3 id="videoTitle">Video detectado</h3><span class="tag" id="serviceTag">Servicio</span></div>
 <div class="preview" id="preview"><div class="placeholder">La vista previa aparecerá aquí si el servicio permite insertarla.</div></div>
 <div class="actions"><a id="openVideo" class="linkbutton primary" href="#" target="_blank" rel="noopener noreferrer">Abrir video ↗</a><button id="copyLink" class="secondary" type="button">Copiar enlace</button><button id="shareLink" class="secondary" type="button">Compartir enlace</button></div>
 </section>
 <div class="howto">
-<article class="step"><div class="num">1</div><h3>Pega el enlace</h3><p>Usa el enlace normal del video, no el enlace de una página de búsqueda.</p></article>
-<article class="step"><div class="num">2</div><h3>Comprueba la vista previa</h3><p>Algunos servicios permiten mostrar el video aquí; otros solo permiten abrir su página.</p></article>
+<article class="step"><div class="num">1</div><h3>Pega el enlace</h3><p>Pega el enlace del video o publicación. Los enlaces cortos y el contenido privado pueden necesitar abrirse en su plataforma.</p></article>
+<article class="step"><div class="num">2</div><h3>Comprueba la vista previa</h3><p>La vista previa depende de las reglas de cada plataforma, del navegador y de la privacidad del video.</p></article>
 <article class="step"><div class="num">3</div><h3>Úsalo en Rave</h3><p>Abre Rave y pega el enlace en la sala siguiendo las opciones que aparezcan en la app.</p></article>
 </div>
-<div class="notice"><strong>Importante:</strong> esta página no puede añadir un video automáticamente a una sala de Rave ni controlar la app. Eso requiere una integración oficial de Rave. Puede ayudarte a detectar, abrir y compartir el enlace.</div>
+<div class="notice"><strong>Importante:</strong> no existe una conversión capaz de hacer reproducible cualquier enlace: algunas páginas bloquean la inserción, exigen iniciar sesión o protegen el contenido. TuturunRav prepara los reproductores disponibles y mantiene la opción de abrir el original. No añade videos automáticamente a una sala de Rave.</div>
 </section>
-<footer>TuturunRav · Herramienta para preparar enlaces de video. No está afiliada a Rave ni a las plataformas de video.</footer>
+<footer>TuturunRav · Herramienta para preparar enlaces de video. No está afiliada a Rave ni a las plataformas enlazadas.</footer>
 </main>
 <script>
 (() => {
-const form = document.querySelector('#videoForm');
-const input = document.querySelector('#videoUrl');
-const status = document.querySelector('#status');
-const result = document.querySelector('#result');
-const title = document.querySelector('#videoTitle');
-const tag = document.querySelector('#serviceTag');
-const preview = document.querySelector('#preview');
-const openVideo = document.querySelector('#openVideo');
-const copyButton = document.querySelector('#copyLink');
-const shareButton = document.querySelector('#shareLink');
-let currentUrl = '';
-const safeUrl = value => {
-  const u = new URL(value);
-  if (!['http:', 'https:'].includes(u.protocol)) throw new Error('Solo se admiten enlaces web http o https.');
-  return u;
-};
-function detect(u) {
-  const host = u.hostname.toLowerCase().replace(/^www\./, '');
-  let service = 'Enlace web', embed = '', label = 'Enlace detectado';
-  if (host === 'youtu.be' || host.endsWith('youtube.com') || host === 'youtube-nocookie.com' || host.endsWith('.youtube-nocookie.com')) {
+  const form = document.querySelector('#videoForm');
+  const input = document.querySelector('#videoUrl');
+  const status = document.querySelector('#status');
+  const result = document.querySelector('#result');
+  const title = document.querySelector('#videoTitle');
+  const tag = document.querySelector('#serviceTag');
+  const preview = document.querySelector('#preview');
+  const openVideo = document.querySelector('#openVideo');
+  const copyButton = document.querySelector('#copyLink');
+  const shareButton = document.querySelector('#shareLink');
+  let currentUrl = '';
+
+  const safeUrl = value => {
+    const u = new URL(value);
+    if (!['http:', 'https:'].includes(u.protocol)) throw new Error('Solo se admiten enlaces web http o https.');
+    return u;
+  };
+  const makeEmbed = (service, label, embed, note = '') => ({service, label, embed, note});
+  const hostOf = u => u.hostname.toLowerCase().replace(/^(www\.|m\.|mobile\.|web\.)/, '');
+
+  function detect(u) {
+    const host = hostOf(u);
+    const path = u.pathname;
+    const parts = path.split('/').filter(Boolean);
     let id = '';
-    if (host === 'youtu.be') id = u.pathname.split('/').filter(Boolean)[0] || '';
-    else if (u.pathname === '/watch') id = u.searchParams.get('v') || '';
-    else if (/^\/(embed|shorts|live)\//.test(u.pathname)) id = u.pathname.split('/')[2] || '';
-    if (id && /^[\w-]{6,20}$/.test(id)) { service = 'YouTube'; label = 'Video de YouTube'; embed = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id); }
-    else { service = 'YouTube'; label = 'Enlace de YouTube'; }
-  } else if (host === 'vimeo.com' || host.endsWith('.vimeo.com')) {
-    const m = u.pathname.match(/(?:video\/)?(\d+)/);
-    if (m) { service = 'Vimeo'; label = 'Video de Vimeo'; embed = 'https://player.vimeo.com/video/' + m[1]; }
-    else service = 'Vimeo';
-  } else if (host === 'twitch.tv' || host.endsWith('.twitch.tv')) {
-    const parts = u.pathname.split('/').filter(Boolean);
-    if (parts[0] === 'videos' && parts[1] && /^\d+$/.test(parts[1])) {
-      service = 'Twitch'; label = 'Video de Twitch';
-      embed = 'https://player.twitch.tv/?video=' + encodeURIComponent(parts[1]) + '&parent=' + encodeURIComponent(location.hostname || 'localhost');
-    } else if (parts[0] && !['directory','downloads','jobs','p','settings','subscriptions','wallet'].includes(parts[0].toLowerCase())) {
-      service = 'Twitch'; label = 'Canal de Twitch';
-      embed = 'https://player.twitch.tv/?channel=' + encodeURIComponent(parts[0]) + '&parent=' + encodeURIComponent(location.hostname || 'localhost');
-    } else service = 'Twitch';
-  } else if (/\.(mp4|webm|ogg|m4v)(?:$)/i.test(u.pathname)) {
-    service = 'Archivo de video'; label = 'Video directo';
-    preview.innerHTML = '';
-    const video = document.createElement('video'); video.controls = true; video.playsInline = true; video.preload = 'metadata'; video.src = u.href; preview.appendChild(video);
-    return {service, label, customPreview: true};
+
+    // Archivos directos: MP4, WebM, Ogg y HLS (M3U8).
+    if (/\.(mp4|webm|ogg|ogv|m4v|mov|m3u8)$/i.test(path)) {
+      return {service: /\.m3u8$/i.test(path) ? 'Streaming HLS' : 'Archivo de video',
+        label: 'Video directo', direct: true,
+        hls: /\.m3u8$/i.test(path),
+        note: 'La reproducción depende de que el archivo o stream permita acceso desde este navegador.'};
+    }
+
+    // YouTube, YouTube Music, Shorts y transmisiones.
+    if (host === 'youtu.be' || host === 'youtube.com' || host.endsWith('.youtube.com') ||
+        host === 'youtube-nocookie.com' || host.endsWith('.youtube-nocookie.com')) {
+      if (host === 'youtu.be') id = parts[0] || '';
+      else if (path === '/watch') id = u.searchParams.get('v') || '';
+      else if (/^\/(embed|shorts|live|v)\//.test(path)) id = parts[1] || '';
+      if (id && /^[\w-]{6,20}$/.test(id)) {
+        return makeEmbed('YouTube', 'Video de YouTube',
+          'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id));
+      }
+      return makeEmbed('YouTube', 'Enlace de YouTube', '', 'Este enlace no parece ser un video individual; se abrirá la página original.');
+    }
+
+    // Vimeo, incluyendo enlaces privados no listados con hash.
+    if (host === 'vimeo.com' || host.endsWith('.vimeo.com')) {
+      const index = parts.findIndex(p => /^\d+$/.test(p));
+      if (index >= 0) {
+        id = parts[index];
+        const secret = u.searchParams.get('h') || (parts[index + 1] && !/^\d+$/.test(parts[index + 1]) ? parts[index + 1] : '');
+        const embed = 'https://player.vimeo.com/video/' + encodeURIComponent(id) + (secret ? '?h=' + encodeURIComponent(secret) : '');
+        return makeEmbed('Vimeo', 'Video de Vimeo', embed,
+          'Los videos privados o con restricciones del propietario pueden no permitir la reproducción.');
+      }
+      return makeEmbed('Vimeo', 'Enlace de Vimeo', '');
+    }
+
+    // Twitch: videos, canales y clips.
+    if (host === 'twitch.tv' || host.endsWith('.twitch.tv')) {
+      const parent = encodeURIComponent(location.hostname || 'localhost');
+      if (host === 'clips.twitch.tv') {
+        id = parts[0] || '';
+        if (id) return makeEmbed('Twitch', 'Clip de Twitch',
+          'https://clips.twitch.tv/embed?clip=' + encodeURIComponent(id) + '&parent=' + parent);
+      }
+      if (parts[0] === 'clip' && parts[1]) {
+        return makeEmbed('Twitch', 'Clip de Twitch',
+          'https://clips.twitch.tv/embed?clip=' + encodeURIComponent(parts[1]) + '&parent=' + parent);
+      }
+      if (parts[0] === 'videos' && parts[1] && /^\d+$/.test(parts[1])) {
+        return makeEmbed('Twitch', 'Video de Twitch',
+          'https://player.twitch.tv/?video=' + encodeURIComponent(parts[1]) + '&parent=' + parent);
+      }
+      if (parts[0] && !['directory','downloads','jobs','p','settings','subscriptions','wallet','search'].includes(parts[0].toLowerCase())) {
+        return makeEmbed('Twitch', 'Canal de Twitch',
+          'https://player.twitch.tv/?channel=' + encodeURIComponent(parts[0]) + '&parent=' + parent);
+      }
+      return makeEmbed('Twitch', 'Enlace de Twitch', '');
+    }
+
+    // TikTok: el reproductor oficial admite el ID del video.
+    if (host === 'tiktok.com' || host.endsWith('.tiktok.com')) {
+      const videoAt = parts.indexOf('video');
+      id = videoAt >= 0 ? (parts[videoAt + 1] || '') : '';
+      if (id && /^\d+$/.test(id)) {
+        return makeEmbed('TikTok', 'Video de TikTok',
+          'https://www.tiktok.com/player/v1/' + encodeURIComponent(id) + '?controls=1&description=1&music_info=1',
+          'TikTok puede limitar la inserción o pedir que abras el video en su aplicación.');
+      }
+      return makeEmbed('TikTok', 'Enlace de TikTok', '',
+        'Es un enlace corto o no contiene un ID de video reconocible. Abre el enlace original para que TikTok lo resuelva.');
+    }
+
+    // Instagram: publicaciones y Reels públicos.
+    if (host === 'instagram.com' || host === 'instagr.am') {
+      const kindIndex = parts.findIndex(p => ['p','reel','reels','tv'].includes(p));
+      if (kindIndex >= 0 && parts[kindIndex + 1]) {
+        const kind = parts[kindIndex];
+        const shortcode = parts[kindIndex + 1];
+        return makeEmbed('Instagram', kind === 'p' ? 'Publicación de Instagram' : 'Reel de Instagram',
+          'https://www.instagram.com/' + encodeURIComponent(kind) + '/' + encodeURIComponent(shortcode) + '/embed/',
+          'Solo se podrán ver publicaciones públicas que permitan inserción; Stories y cuentas privadas no son compatibles.');
+      }
+      return makeEmbed('Instagram', 'Enlace de Instagram', '',
+        'Los perfiles, Stories y algunos enlaces compartidos no ofrecen un reproductor de video integrado.');
+    }
+
+    // Facebook: el reproductor oficial intenta insertar el enlace original.
+    if (host === 'facebook.com' || host.endsWith('.facebook.com') || host === 'fb.watch') {
+      const isVideoPath = /\/(watch|videos|reel|reels|share\/v|share\/r)\b/i.test(path) ||
+        u.searchParams.has('v') || host === 'fb.watch';
+      if (isVideoPath) {
+        const embed = 'https://www.facebook.com/plugins/video.php?href=' +
+          encodeURIComponent(u.href) + '&show_text=0&width=560';
+        return makeEmbed('Facebook', 'Video de Facebook', embed,
+          'El video debe ser público y permitir inserción; Facebook puede pedir iniciar sesión.');
+      }
+      return makeEmbed('Facebook', 'Enlace de Facebook', '',
+        'Pega el enlace directo del video o Reel, no el de tu muro o página de inicio.');
+    }
+
+    // X/Twitter: la publicación se abre y se puede compartir; su inserción puede variar.
+    if (host === 'x.com' || host === 'twitter.com' || host === 'mobile.twitter.com') {
+      const m = path.match(/\/status\/(\d+)/);
+      if (m) {
+        return makeEmbed('X / Twitter', 'Publicación de X',
+          'https://platform.twitter.com/embed/Tweet.html?id=' + encodeURIComponent(m[1]),
+          'La inserción depende de que la publicación siga disponible y sea pública.');
+      }
+      return makeEmbed('X / Twitter', 'Enlace de X', '');
+    }
+
+    // Dailymotion.
+    if (host === 'dailymotion.com' || host === 'dai.ly' || host.endsWith('.dailymotion.com')) {
+      const m = path.match(/\/(?:embed\/)?video\/([a-zA-Z0-9]+)/) || (host === 'dai.ly' ? path.match(/^\/([a-zA-Z0-9]+)/) : null);
+      if (m) return makeEmbed('Dailymotion', 'Video de Dailymotion',
+        'https://www.dailymotion.com/embed/video/' + encodeURIComponent(m[1]));
+      return makeEmbed('Dailymotion', 'Enlace de Dailymotion', '');
+    }
+
+    // Streamable.
+    if (host === 'streamable.com' || host.endsWith('.streamable.com')) {
+      id = parts[0] === 'e' ? (parts[1] || '') : (parts[0] || '');
+      if (id && /^[\w-]+$/.test(id)) return makeEmbed('Streamable', 'Video de Streamable',
+        'https://streamable.com/e/' + encodeURIComponent(id));
+      return makeEmbed('Streamable', 'Enlace de Streamable', '');
+    }
+
+    // Enlaces de otras plataformas: no se inventa un reproductor que quizá no funcione.
+    return makeEmbed('Sitio web', 'Enlace detectado', '',
+      'Este sitio no tiene un reproductor automático compatible todavía. Puedes abrir el enlace original o copiarlo para compartirlo.');
   }
-  return {service, label, embed, customPreview: false};
-}
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  try {
-    const u = safeUrl(input.value.trim());
-    currentUrl = u.href;
-    const d = detect(u);
-    title.textContent = d.label;
-    tag.textContent = d.service;
-    openVideo.href = currentUrl;
-    if (!d.customPreview) {
-      preview.replaceChildren();
-      if (d.embed) {
+
+  function showPlaceholder(message) {
+    preview.replaceChildren();
+    const p = document.createElement('div');
+    p.className = 'placeholder';
+    p.textContent = message;
+    preview.appendChild(p);
+  }
+
+  function showDirectVideo(u, d) {
+    preview.replaceChildren();
+    const video = document.createElement('video');
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.style.objectFit = 'contain';
+    preview.appendChild(video);
+
+    if (d.hls && !video.canPlayType('application/vnd.apple.mpegurl')) {
+      const loadHls = () => new Promise((resolve, reject) => {
+        if (window.Hls) return resolve();
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      loadHls().then(() => {
+        if (window.Hls && window.Hls.isSupported()) {
+          const hls = new window.Hls();
+          hls.loadSource(u.href);
+          hls.attachMedia(video);
+        } else {
+          video.src = u.href;
+        }
+      }).catch(() => {
+        video.src = u.href;
+        status.textContent = 'Se reconoció el stream HLS, pero este navegador no pudo cargar su reproductor. Prueba “Abrir video”.';
+      });
+    } else {
+      video.src = u.href;
+    }
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    try {
+      const u = safeUrl(input.value.trim());
+      currentUrl = u.href;
+      const d = detect(u);
+      title.textContent = d.label;
+      tag.textContent = d.service;
+      openVideo.href = currentUrl;
+
+      if (d.direct) {
+        showDirectVideo(u, d);
+      } else if (d.embed) {
+        preview.replaceChildren();
         const frame = document.createElement('iframe');
         frame.src = d.embed;
         frame.title = 'Vista previa de ' + d.service;
         frame.loading = 'lazy';
-        frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
         frame.allowFullscreen = true;
         frame.referrerPolicy = 'strict-origin-when-cross-origin';
         preview.appendChild(frame);
       } else {
-        const p = document.createElement('div'); p.className = 'placeholder';
-        p.textContent = 'Este enlace no ofrece una vista previa compatible. Puedes abrirlo o copiarlo para compartirlo en Rave.';
-        preview.appendChild(p);
+        showPlaceholder(d.note || 'Esta plataforma no ofrece un reproductor integrado compatible para este enlace.');
+      }
+
+      result.classList.add('show');
+      const detail = d.note ? ' ' + d.note : '';
+      status.textContent = 'Detectado: ' + d.service + '. ' +
+        (d.direct || d.embed ? 'Preparé el reproductor cuando el navegador lo permite.' : 'No hay vista previa automática para este enlace.') +
+        detail;
+      result.scrollIntoView({behavior:'smooth',block:'nearest'});
+    } catch {
+      result.classList.remove('show');
+      status.textContent = 'Escribe un enlace válido que empiece con https:// o http://.';
+    }
+  });
+
+  copyButton.addEventListener('click', async () => {
+    if (!currentUrl) return;
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      status.textContent = 'Enlace copiado. Ya puedes pegarlo en Rave.';
+    } catch {
+      input.focus();
+      input.select();
+      status.textContent = 'No se pudo copiar automáticamente. Selecciona el enlace del campo y cópialo.';
+    }
+  });
+
+  shareButton.addEventListener('click', async () => {
+    if (!currentUrl) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({title:'Video para Rave',url:currentUrl});
+      } catch (e) {
+        if (e.name !== 'AbortError') status.textContent = 'No se pudo abrir el menú de compartir. Usa “Copiar enlace”.';
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(currentUrl);
+        status.textContent = 'Este navegador no ofrece compartir aquí; enlace copiado para pegarlo en Rave.';
+      } catch {
+        status.textContent = 'Usa “Copiar enlace” y pégalo en Rave.';
       }
     }
-    result.classList.add('show');
-    status.textContent = 'Detectado: ' + d.service + '. Ya puedes abrir o compartir el enlace.';
-    result.scrollIntoView({behavior:'smooth',block:'nearest'});
-  } catch {
-    result.classList.remove('show');
-    status.textContent = 'Escribe un enlace válido que empiece con https:// o http://.';
-  }
-});
-copyButton.addEventListener('click', async () => {
-  if (!currentUrl) return;
-  try { await navigator.clipboard.writeText(currentUrl); status.textContent = 'Enlace copiado. Ya puedes pegarlo en Rave.'; }
-  catch { input.focus(); input.select(); status.textContent = 'No se pudo copiar automáticamente. Selecciona el enlace del campo y cópialo.'; }
-});
-shareButton.addEventListener('click', async () => {
-  if (!currentUrl) return;
-  if (navigator.share) {
-    try { await navigator.share({title:'Video para Rave',url:currentUrl}); }
-    catch (e) { if (e.name !== 'AbortError') status.textContent = 'No se pudo abrir el menú de compartir. Usa “Copiar enlace”.'; }
-  } else {
-    try { await navigator.clipboard.writeText(currentUrl); status.textContent = 'Este navegador no ofrece compartir aquí; enlace copiado para pegarlo en Rave.'; }
-    catch { status.textContent = 'Usa “Copiar enlace” y pégalo en Rave.'; }
-  }
-});
+  });
 })();
 </script>
 </body>
