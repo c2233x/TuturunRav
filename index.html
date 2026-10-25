@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101018">
+<meta name="description" content="Pega un enlace de video, detecta el servicio y abre el video para compartirlo en Rave.">
+<title>TuturunRav — Enlaces para Rave</title>
+<style>
+:root{color-scheme:dark;--bg:#101018;--panel:#191925;--line:#343449;--text:#f6f4ff;--muted:#b7b4ca;--pink:#ff4d91;--purple:#9b7bff;--green:#72e4b8}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 0%,#322044 0,transparent 42%),radial-gradient(ellipse at 100% 25%,#1e3150 0,transparent 35%),var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--pink),var(--purple));font-size:25px;font-weight:900;box-shadow:0 8px 28px #ff4d9140}.brand h1{font-size:1.45rem;margin:0;letter-spacing:.2px}.brand p{margin:0;color:var(--muted);font-size:.9rem}.hero{padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:26px;background:#171723eF;box-shadow:0 24px 80px #0004}.eyebrow{color:#d3bfff;text-transform:uppercase;font-size:.76rem;font-weight:800;letter-spacing:2px}.hero h2{font-size:clamp(2rem,6vw,3.4rem);line-height:1.08;margin:10px 0 14px}.hero h2 span{background:linear-gradient(90deg,var(--pink),#b8a0ff);-webkit-background-clip:text;background-clip:text;color:transparent}.intro{color:var(--muted);max-width:650px;margin:0 0 25px}.fieldlabel{display:block;font-weight:700;margin-bottom:9px}form{display:flex;gap:10px;flex-wrap:wrap}input{flex:1 1 280px;min-width:0;border:1px solid #49495f;border-radius:13px;background:#0e0e17;color:white;padding:15px;font:inherit;outline:none}input:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9b7bff25}button,.linkbutton{border:0;border-radius:13px;padding:13px 18px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,filter .15s}button:hover,.linkbutton:hover{filter:brightness(1.1);transform:translateY(-1px)}button:focus-visible,a:focus-visible{outline:3px solid #d3bfff;outline-offset:3px}.primary{background:linear-gradient(100deg,var(--pink),var(--purple));color:white}.secondary{background:#29293a;color:white;border:1px solid #414158}.status{margin:16px 0 0;color:var(--muted);min-height:24px}.result{display:none;margin-top:22px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#11111b}.result.show{display:block}.resulthead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.resulthead h3{margin:0;font-size:1.05rem}.tag{border:1px solid #49415f;border-radius:99px;padding:5px 10px;font-size:.78rem;color:#d9cbff}.preview{background:#08080d;aspect-ratio:16/9;display:grid;place-items:center}.preview iframe,.preview video{width:100%;height:100%;border:0}.preview .placeholder{padding:24px;text-align:center;color:var(--muted)}.actions{display:flex;flex-wrap:wrap;gap:10px;padding:16px 18px}.howto{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.step{padding:18px;border:1px solid var(--line);border-radius:17px;background:#171723b8}.step .num{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#302542;color:#e3d4ff;font-weight:900}.step h3{margin:12px 0 6px;font-size:1rem}.step p{margin:0;color:var(--muted);font-size:.92rem}.notice{margin-top:18px;padding:15px 17px;border-radius:14px;background:#242032;border:1px solid #4b3c68;color:#d8d0e8;font-size:.9rem}.notice strong{color:white}footer{text-align:center;color:#9692aa;font-size:.82rem;padding:25px 0 0}a{color:#d7caff} @media(max-width:520px){main{padding:20px 12px 34px}.hero{border-radius:20px}form button{width:100%}.actions>*{flex:1 1 100%}}
+</style>
+</head>
+<body>
+<main>
+<header class="brand"><div class="logo" aria-hidden="true">▶</div><div><h1>TuturunRav</h1><p>Encuentra tu video y compártelo en Rave</p></div></header>
+<section class="hero">
+<div class="eyebrow">Tu enlace, listo para compartir</div>
+<h2>Un video. <span>Un solo lugar.</span></h2>
+<p class="intro">Pega el enlace de un video. TuturunRav detectará el servicio y, cuando sea compatible, mostrará una vista previa. Después podrás abrir el video o copiar el enlace para usarlo en Rave.</p>
+<label class="fieldlabel" for="videoUrl">Enlace del video</label>
+<form id="videoForm"><input id="videoUrl" name="videoUrl" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="url" required aria-describedby="status"><button class="primary" type="submit">Detectar video <span aria-hidden="true">↗</span></button></form>
+<p class="status" id="status" role="status" aria-live="polite">Compatible con enlaces de YouTube, Vimeo, Twitch y archivos de video directos.</p>
+<section class="result" id="result" aria-label="Resultado del enlace">
+<div class="resulthead"><h3 id="videoTitle">Video detectado</h3><span class="tag" id="serviceTag">Servicio</span></div>
+<div class="preview" id="preview"><div class="placeholder">La vista previa aparecerá aquí si el servicio permite insertarla.</div></div>
+<div class="actions"><a id="openVideo" class="linkbutton primary" href="#" target="_blank" rel="noopener noreferrer">Abrir video ↗</a><button id="copyLink" class="secondary" type="button">Copiar enlace</button><button id="shareLink" class="secondary" type="button">Compartir enlace</button></div>
+</section>
+<div class="howto">
+<article class="step"><div class="num">1</div><h3>Pega el enlace</h3><p>Usa el enlace normal del video, no el enlace de una página de búsqueda.</p></article>
+<article class="step"><div class="num">2</div><h3>Comprueba la vista previa</h3><p>Algunos servicios permiten mostrar el video aquí; otros solo permiten abrir su página.</p></article>
+<article class="step"><div class="num">3</div><h3>Úsalo en Rave</h3><p>Abre Rave y pega el enlace en la sala siguiendo las opciones que aparezcan en la app.</p></article>
+</div>
+<div class="notice"><strong>Importante:</strong> esta página no puede añadir un video automáticamente a una sala de Rave ni controlar la app. Eso requiere una integración oficial de Rave. Puede ayudarte a detectar, abrir y compartir el enlace.</div>
+</section>
+<footer>TuturunRav · Herramienta para preparar enlaces de video. No está afiliada a Rave ni a las plataformas de video.</footer>
+</main>
+<script>
+(() => {
+const form = document.querySelector('#videoForm');
+const input = document.querySelector('#videoUrl');
+const status = document.querySelector('#status');
+const result = document.querySelector('#result');
+const title = document.querySelector('#videoTitle');
+const tag = document.querySelector('#serviceTag');
+const preview = document.querySelector('#preview');
+const openVideo = document.querySelector('#openVideo');
+const copyButton = document.querySelector('#copyLink');
+const shareButton = document.querySelector('#shareLink');
+let currentUrl = '';
+const safeUrl = value => {
+  const u = new URL(value);
+  if (!['http:', 'https:'].includes(u.protocol)) throw new Error('Solo se admiten enlaces web http o https.');
+  return u;
+};
+function detect(u) {
+  const host = u.hostname.toLowerCase().replace(/^www\./, '');
+  let service = 'Enlace web', embed = '', label = 'Enlace detectado';
+  if (host === 'youtu.be' || host.endsWith('youtube.com') || host === 'youtube-nocookie.com' || host.endsWith('.youtube-nocookie.com')) {
+    let id = '';
+    if (host === 'youtu.be') id = u.pathname.split('/').filter(Boolean)[0] || '';
+    else if (u.pathname === '/watch') id = u.searchParams.get('v') || '';
+    else if (/^\/(embed|shorts|live)\//.test(u.pathname)) id = u.pathname.split('/')[2] || '';
+    if (id && /^[\w-]{6,20}$/.test(id)) { service = 'YouTube'; label = 'Video de YouTube'; embed = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id); }
+    else { service = 'YouTube'; label = 'Enlace de YouTube'; }
+  } else if (host === 'vimeo.com' || host.endsWith('.vimeo.com')) {
+    const m = u.pathname.match(/(?:video\/)?(\d+)/);
+    if (m) { service = 'Vimeo'; label = 'Video de Vimeo'; embed = 'https://player.vimeo.com/video/' + m[1]; }
+    else service = 'Vimeo';
+  } else if (host === 'twitch.tv' || host.endsWith('.twitch.tv')) {
+    const parts = u.pathname.split('/').filter(Boolean);
+    if (parts[0] === 'videos' && parts[1] && /^\d+$/.test(parts[1])) {
+      service = 'Twitch'; label = 'Video de Twitch';
+      embed = 'https://player.twitch.tv/?video=' + encodeURIComponent(parts[1]) + '&parent=' + encodeURIComponent(location.hostname || 'localhost');
+    } else if (parts[0] && !['directory','downloads','jobs','p','settings','subscriptions','wallet'].includes(parts[0].toLowerCase())) {
+      service = 'Twitch'; label = 'Canal de Twitch';
+      embed = 'https://player.twitch.tv/?channel=' + encodeURIComponent(parts[0]) + '&parent=' + encodeURIComponent(location.hostname || 'localhost');
+    } else service = 'Twitch';
+  } else if (/\.(mp4|webm|ogg|m4v)(?:$)/i.test(u.pathname)) {
+    service = 'Archivo de video'; label = 'Video directo';
+    preview.innerHTML = '';
+    const video = document.createElement('video'); video.controls = true; video.playsInline = true; video.preload = 'metadata'; video.src = u.href; preview.appendChild(video);
+    return {service, label, customPreview: true};
+  }
+  return {service, label, embed, customPreview: false};
+}
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  try {
+    const u = safeUrl(input.value.trim());
+    currentUrl = u.href;
+    const d = detect(u);
+    title.textContent = d.label;
+    tag.textContent = d.service;
+    openVideo.href = currentUrl;
+    if (!d.customPreview) {
+      preview.replaceChildren();
+      if (d.embed) {
+        const frame = document.createElement('iframe');
+        frame.src = d.embed;
+        frame.title = 'Vista previa de ' + d.service;
+        frame.loading = 'lazy';
+        frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        frame.allowFullscreen = true;
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        preview.appendChild(frame);
+      } else {
+        const p = document.createElement('div'); p.className = 'placeholder';
+        p.textContent = 'Este enlace no ofrece una vista previa compatible. Puedes abrirlo o copiarlo para compartirlo en Rave.';
+        preview.appendChild(p);
+      }
+    }
+    result.classList.add('show');
+    status.textContent = 'Detectado: ' + d.service + '. Ya puedes abrir o compartir el enlace.';
+    result.scrollIntoView({behavior:'smooth',block:'nearest'});
+  } catch {
+    result.classList.remove('show');
+    status.textContent = 'Escribe un enlace válido que empiece con https:// o http://.';
+  }
+});
+copyButton.addEventListener('click', async () => {
+  if (!currentUrl) return;
+  try { await navigator.clipboard.writeText(currentUrl); status.textContent = 'Enlace copiado. Ya puedes pegarlo en Rave.'; }
+  catch { input.focus(); input.select(); status.textContent = 'No se pudo copiar automáticamente. Selecciona el enlace del campo y cópialo.'; }
+});
+shareButton.addEventListener('click', async () => {
+  if (!currentUrl) return;
+  if (navigator.share) {
+    try { await navigator.share({title:'Video para Rave',url:currentUrl}); }
+    catch (e) { if (e.name !== 'AbortError') status.textContent = 'No se pudo abrir el menú de compartir. Usa “Copiar enlace”.'; }
+  } else {
+    try { await navigator.clipboard.writeText(currentUrl); status.textContent = 'Este navegador no ofrece compartir aquí; enlace copiado para pegarlo en Rave.'; }
+    catch { status.textContent = 'Usa “Copiar enlace” y pégalo en Rave.'; }
+  }
+});
+})();
+</script>
+</body>
+</html>
