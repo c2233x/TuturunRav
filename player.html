@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101018">
+<title>TuturunRav Player — Reproductor de video</title>
+<style>
+:root{color-scheme:dark;--bg:#101018;--panel:#191925;--line:#343449;--text:#f6f4ff;--muted:#b7b4ca;--pink:#ff4d91;--purple:#9b7bff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 0%,#322044 0,transparent 42%),radial-gradient(ellipse at 100% 25%,#1e3150 0,transparent 35%),var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{width:min(900px,100%);margin:auto;padding:25px 15px 42px}.brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}.logo{display:grid;place-items:center;width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,var(--pink),var(--purple));font-size:24px;font-weight:900}.brand h1{font-size:1.3rem;margin:0}.brand p{margin:0;color:var(--muted);font-size:.9rem}.panel{padding:clamp(18px,4vw,32px);border:1px solid var(--line);border-radius:22px;background:#171723ef}.eyebrow{font-size:.75rem;letter-spacing:2px;text-transform:uppercase;color:#d3bfff;font-weight:800}h2{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:10px 0}p{color:var(--muted)}form{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}input{flex:1 1 290px;min-width:0;border:1px solid #49495f;border-radius:12px;background:#0e0e17;color:white;padding:14px;font:inherit}button,.link{border:0;border-radius:12px;padding:12px 15px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#29293a;color:white;border:1px solid #414158}.primary{background:linear-gradient(100deg,var(--pink),var(--purple));border:0;color:white}.player{margin-top:20px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#050508;aspect-ratio:16/9;display:grid;place-items:center}.player iframe,.player video{width:100%;height:100%;border:0}.placeholder{padding:24px;text-align:center;max-width:680px}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.notice{margin-top:18px;padding:15px 17px;border-radius:13px;background:#242032;border:1px solid #4b3c68}.notice p{margin:0 0 9px}.notice p:last-child{margin-bottom:0}.hidden{display:none}a{color:#e3d6ff}@media(max-width:520px){main{padding:15px 10px 32px}.panel{border-radius:17px}form button{width:100%}.actions>*{flex:1 1 100%}}
+</style>
+</head>
+<body>
+<main>
+<header class="brand"><div class="logo" aria-hidden="true">▶</div><div><h1>TuturunRav Player</h1><p>Reproductor independiente</p></div></header>
+<section class="panel">
+<div class="eyebrow">Página de reproducción</div>
+<h2>Tu video, en una página separada</h2>
+<p>Pega un enlace directo a un archivo de video, un enlace compartido de MEGA o un enlace de página de video. La reproducción depende del formato, los permisos y las restricciones del sitio original.</p>
+<form id="sourceForm"><input id="sourceUrl" type="text" placeholder="Pega el enlace del video o archivo" required aria-label="Enlace del video"><button class="primary" type="submit">Cargar video ↗</button></form>
+<div id="player" class="player"><div class="placeholder">El reproductor aparecerá aquí.</div></div>
+<div class="actions">
+<a id="openSource" class="link primary" href="#" target="_blank" rel="noopener noreferrer">Abrir origen original ↗</a>
+<button id="reloadVideo" type="button">↻ Recargar video</button>
+<button id="copyPage" type="button">Copiar enlace de esta página</button>
+</div>
+<div id="message" class="notice" role="status" aria-live="polite">
+<p><strong>Importante:</strong> esta página crea un reproductor web independiente, pero no puede registrarse como un proveedor nativo de Rave. Para reproducción sincronizada dentro de Rave, el servicio debe ser compatible con la app.</p>
+</div>
+</section>
+</main>
+<script>
+(() => {
+  const form = document.querySelector('#sourceForm');
+  const input = document.querySelector('#sourceUrl');
+  const player = document.querySelector('#player');
+  const message = document.querySelector('#message');
+  const openSource = document.querySelector('#openSource');
+  let currentSource = '';
+  let currentType = 'none';
+
+  function safeUrl(raw) {
+    const url = new URL(raw.trim());
+    if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Solo se admiten enlaces http o https.');
+    return url;
+  }
+  function hostOf(u) { return u.hostname.toLowerCase().replace(/^(www\.|m\.)/, ''); }
+  function info(text) {
+    message.replaceChildren();
+    const p = document.createElement('p');
+    p.textContent = text;
+    message.appendChild(p);
+  }
+  function placeholder(text) {
+    player.replaceChildren();
+    const d = document.createElement('div');
+    d.className = 'placeholder';
+    d.textContent = text;
+    player.appendChild(d);
+  }
+  function addFrame(url, label) {
+    player.replaceChildren();
+    const frame = document.createElement('iframe');
+    frame.src = url;
+    frame.title = label;
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.loading = 'eager';
+    player.appendChild(frame);
+  }
+  function addVideo(url, hls) {
+    player.replaceChildren();
+    const video = document.createElement('video');
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.style.objectFit = 'contain';
+    player.appendChild(video);
+    if (hls && !video.canPlayType('application/vnd.apple.mpegurl')) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js';
+      script.onload = () => {
+        if (window.Hls && window.Hls.isSupported()) {
+          const engine = new window.Hls();
+          engine.loadSource(url);
+          engine.attachMedia(video);
+        } else video.src = url;
+      };
+      script.onerror = () => { video.src = url; };
+      document.head.appendChild(script);
+    } else video.src = url;
+  }
+  function load(raw) {
+    const u = safeUrl(raw);
+    currentSource = u.href;
+    input.value = currentSource;
+    openSource.href = currentSource;
+    const host = hostOf(u);
+    const path = u.pathname;
+    const parts = path.split('/').filter(Boolean);
+    const isMedia = /\.(mp4|webm|ogg|ogv|m4v|mov|m3u8)(?:$)/i.test(path) ||
+      /\.(mp4|webm|ogg|ogv|m4v|mov|m3u8)(?:$|&)/i.test(u.search);
+
+    if (isMedia) {
+      currentType = 'video';
+      addVideo(u.href, /\.m3u8(?:$)/i.test(path));
+      info('Detecté una URL que parece ser un archivo de video. Si no reproduce, el servidor puede bloquear el acceso, el rango de datos o el formato.');
+      return;
+    }
+
+    // MEGA file shares are encrypted; use MEGA's own embedded player, not a fake direct MP4 URL.
+    if ((host === 'mega.nz' || host === 'mega.co.nz') && /\/(file|embed)\//i.test(path)) {
+      const match = path.match(/\/(?:file|embed)\/([A-Za-z0-9_-]+)/i);
+      if (match) {
+        const key = u.hash || '';
+        const embed = 'https://mega.nz/embed/' + match[1] + key;
+        currentType = 'mega';
+        addFrame(embed, 'Reproductor oficial de MEGA');
+        info('Enlace de MEGA reconocido. El video se reproduce con el reproductor de MEGA porque el archivo está cifrado. Esta página no lo convierte en un archivo MP4 público ni garantiza que Rave reconozca MEGA como proveedor.');
+        return;
+      }
+    }
+    // Legacy MEGA shared-file form: #!ID!KEY
+    if ((host === 'mega.nz' || host === 'mega.co.nz') && /#![^!]+![^!]+/.test(u.href)) {
+      const m = u.href.match(/#!([^!]+)!([^&]+)/);
+      if (m) {
+        const embed = 'https://mega.nz/embed/' + m[1] + '#' + m[2];
+        currentType = 'mega';
+        addFrame(embed, 'Reproductor oficial de MEGA');
+        info('Enlace antiguo de MEGA reconocido. Se usa el reproductor oficial; Rave puede no aceptar el servicio como fuente nativa.');
+        return;
+      }
+    }
+
+    // Known native video service URLs use their own players.
+    if (host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtu.be') {
+      let id = host === 'youtu.be' ? parts[0] : (u.searchParams.get('v') || (/^\/(embed|shorts|live)\//.test(path) ? parts[1] : ''));
+      if (id && /^[\w-]{6,20}$/.test(id)) {
+        currentType = 'embed';
+        addFrame('https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id), 'Video de YouTube');
+        info('Video de YouTube detectado. Para que Rave reconozca el proveedor de forma nativa, usa el enlace original de YouTube, no esta página intermedia.');
+        return;
+      }
+    }
+
+    // For MediaFire, a share page is not the direct media file; try showing the original page.
+    if (host === 'mediafire.com' || host.endsWith('.mediafire.com')) {
+      currentType = 'page';
+      addFrame(u.href, 'Página de MediaFire');
+      info('Enlace de MediaFire detectado. Si aparece su página de descarga en vez del video, este enlace no entrega el archivo directamente. Pega una URL de descarga directa que termine en .mp4/.webm, si el proveedor la ofrece; también puedes descargar el archivo que tengas derecho a usar y subirlo a Google Drive/Photos para abrirlo desde Rave.');
+      return;
+    }
+
+    // Unknown page: try an iframe, since the target site may disallow framing.
+    currentType = 'page';
+    addFrame(u.href, 'Página externa de video');
+    info('Intenté cargar la página original dentro del visor. Si está en blanco o da error, el sitio puede bloquear la inserción; pega la URL directa del archivo de video si la conoces.');
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    try { load(input.value); }
+    catch { info('Pega un enlace válido que empiece por https:// o http://.'); }
+  });
+  document.querySelector('#reloadVideo').addEventListener('click', () => {
+    if (!currentSource) return;
+    try { load(currentSource); } catch { info('No se pudo recargar este enlace.'); }
+  });
+  document.querySelector('#copyPage').addEventListener('click', async () => {
+    if (!currentSource) return;
+    const page = new URL(location.href);
+    page.search = '';
+    page.hash = '';
+    page.searchParams.set('src', currentSource);
+    try {
+      await navigator.clipboard.writeText(page.href);
+      info('Enlace de esta página copiado. Ten en cuenta que Rave puede no reconocer esta página como fuente sincronizada.');
+    } catch {
+      info('No se pudo copiar automáticamente. La dirección de esta página es la URL del navegador con ?src= seguido del enlace del video codificado.');
+    }
+  });
+
+  try {
+    const src = new URL(location.href).searchParams.get('src');
+    if (src) load(src);
+  } catch { info('No se pudo leer el enlace enviado. Pégalo de nuevo en el campo.'); }
+})();
+</script>
+</body>
+</html>
