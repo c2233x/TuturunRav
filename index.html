@@ -228,10 +228,6 @@ main{width:min(900px,100%);margin:auto;padding:30px 18px 48px}.brand{display:fle
 
   function openPageInPreview(url) {
     preview.replaceChildren();
-    const note = document.createElement('div');
-    note.className = 'placeholder';
-    note.textContent = 'Probando insertar la página original. Si el sitio bloquea la inserción, usa “Abrir video” o pega un enlace/código de reproductor.';
-    preview.appendChild(note);
     const frame = document.createElement('iframe');
     frame.src = url;
     frame.title = 'Página externa de video';
